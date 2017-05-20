@@ -10,6 +10,9 @@
 - **Shards** (Index divided into pieces) - _horizontal scalability_
 - **Replica** (Copies of indexes) - _availability_
 
+# APACHE LUCENE
+[**Apache Lucene**](https://lucene.apache.org/)
+
 # EXERCISES
 ## CREATE A NEW INDEX
 ```
@@ -30,6 +33,15 @@ DELETE /ecommerce
 ```
 GET _cat/indices?v
 ```
+
+# MAPPING
+
+# TYPES (fase out)
+- CORE DATA TYPES - string, numeric, boolean ..
+- COMPLEX DATA TYPE - object JASON, array, 
+  - Array - deserves deep learning
+- GEO DATA TYPE
+- SPECIALIZED DATA TYPE - ipv4, completion, token count, attachments(plugin)
 
 # EXTRAS
 [Readding](https://www.elastic.co/guide/en/kibana/current/connect-to-elasticsearch.html)

@@ -18,7 +18,7 @@
 ```
 PUT /ecommerce
 {
-  
+ 
 }
 ```
 ## RETRIEVE DATA FROM INDEXES
@@ -66,7 +66,7 @@ Other metafileds
 
 # ..
 - Add mapping to a index;
-````
+```
 PUT /ecommerce
 {
     "mappings":{ 
@@ -102,11 +102,130 @@ PUT /ecommerce
       }
     }
 }
-````
+```
 - Adding test data
-````
+```
 $ [elasticsearch] curl -XPOST http://localhost:9200/ecommerce/product/_bulk --data-binary "@test-data.json"
-````
+```
+- Adding a document
+```
+PUT /ecommerce/product/1001
+{
+  "name":"Zend framework",
+  "price":30.00,
+  "description":"Learn a framework",
+  "status":"active",
+  "quantity":1,
+  "categories":[{"name":"SOFTWARE"}],
+  "tags":["Zend framework", "zf2", "php", "programming"]
+}
+```
+- Replacing a document
+```
+PUT /ecommerce/product/1001
+{
+  "name":"Zend framework",
+  "price": 40.00,
+  "description":"Learn a framework",
+  "status":"active",
+  "quantity":1,
+  "categories":[{"name":"SOFTWARE"}],
+  "tags":["Zend framework", "zf2", "php", "programming"]
+}
+```
+- Updating a document
+```
+POST /ecommerce/product/1001/_update
+{
+  "doc":{
+   "price": 50.00 
+  }
+}
+```
+- Deleting a document
+  - Only delete by ID, there is a plugin to delete by query
+```
+DELETE /ecommerce/product/1001
+```
+- Batch processing
+```
+POST /ecommerce/product/_bulk
+{"index":{"_id":"1002"}}
+{"name":"Why elastic search is Awesome","price":"50.00","description":"This book is all about Elasticsearch!","status":"active","quantity":12,"category":[{"name":"Software"}],"tags":["elasticsearch","programming"]}
+{"index":{"_id":"1003"}}
+{"name":"Peanuts","price":"3.00","description":"Peanuts with salt.","status":"active","quantity":56,"category":[{"name":"Food"}],"tags":["snacks"]}
+```
+```
+POST /ecommerce/product/_bulk
+{"delete":{"_id":"1"}}
+{"update":{"_id":"1002"}}
+{"doc":{"quantity":11}}
+```
+- Batch without informing the index and type to the URL
+```
+POST /_bulk
+{"update":{"_id":"1002", "_index":"ecommerce", "_type":"product"}}
+{"doc":{"quantity":10}}
+```
+- Retriece a document
+```
+GET /ecommerce/product/1002
+```
+# SEARCHING
+Relevancy and Scoring
+* Query string : 
+```
+GET http://localhost:9200/ecommerce/product/_search?q=Awesome
+```
+* Query DSL
+```
+GET http://localhost:9200/ecommerce/product/_search
+{
+    "query":{
+      "match":{
+        "name":"awesome"
+      }
+    }
+}
+```
+
+## Types of Queries
+- Leaf and Compound Queries
+  - Leaf : particular values in particular fields 
+  - Compound : combine multiple queries
+- Full Text
+- Term Level
+  - Exact values/matching
+- Joining Queries
+  - Nested query
+  - has_child - returns parents
+  - has_parent - return children
+- Geo Queries
+  - geo_point
+  - geo_shape
+
+## Queries
+```
+ GET /ecommerce/product/_search?q=pasta
+ GET /ecommerce/product/_search?q=name:pasta
+ GET /ecommerce/product/_search?q=description:pasta
+```
+```
+GET /ecommerce/product/_search?q=name:(pasta AND spaghetti)
+GET /ecommerce/product/_search?q=name:(pasta OR spaghetti)
+GET /ecommerce/product/_search?q=(name:(pasta OR spaghetti) AND status:active)
+GET /ecommerce/product/_search?q=name:+pasta -spaghetti
+```
+
+```
+GET /ecommerce/product/_search?q=name:"pasta spaghetti"
+GET /ecommerce/product/_search?q=name:"spaghetti pasta"
+    
+    [Deprecated]
+GET /_analyze?analyzer=standard&text=Pasta - Spaghetti
+    [Deprecated]
+```
+
 # EXTRAS
 * [Readding](https://www.elastic.co/guide/en/kibana/current/connect-to-elasticsearch.html)
 * [CURL download](https://curl.haxx.se/)

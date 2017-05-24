@@ -38,7 +38,7 @@ GET _cat/indices?v
 
 # TYPES (fase out)
 - CORE DATA TYPES - string, numeric, boolean ..
-- COMPLEX DATA TYPE - object JASON, array, 
+- COMPLEX DATA TYPE - object JSON, array, 
   - Array - deserves deep learning
 - GEO DATA TYPE
 - SPECIALIZED DATA TYPE - ipv4, completion, token count, attachments(plugin)
@@ -204,7 +204,7 @@ GET http://localhost:9200/ecommerce/product/_search
   - geo_point
   - geo_shape
 
-## Queries
+## Query String
 ```
  GET /ecommerce/product/_search?q=pasta
  GET /ecommerce/product/_search?q=name:pasta
@@ -225,6 +225,159 @@ GET /ecommerce/product/_search?q=name:"spaghetti pasta"
 GET /_analyze?analyzer=standard&text=Pasta - Spaghetti
     [Deprecated]
 ```
+
+# Query DSL - Full text queries
+```
+GET /ecommerce/product/_search
+{
+    "query":{
+        "match_all":{}
+    }
+}
+
+```
+```
+GET /ecommerce/product/_search
+{
+    "query":{
+        "match":{
+            "name":"pasta"
+        }
+    }
+}
+```
+```
+GET /ecommerce/product/_search
+{
+    "query":{
+        "multi_match":{
+            "query":"pasta", 
+            "fields":["name", "description"]
+        }
+    }
+}
+```
+```
+GET /ecommerce/product/_search
+{
+    "query":{
+        "match_phrase":{
+            "name":"pasta spaghetti" 
+        }
+    }
+}
+```
+## Query DSL - Term level queries
+_Exact matching of values_
+```
+GET /ecommerce/product/_search
+{
+    "query":{
+        "term":{
+            "status":"active"
+        }
+    }
+}
+```
+```
+GET /ecommerce/product/_search
+{
+    "query":{
+        "terms":{
+            "status":["active", "inactive"]
+        }
+    }
+}
+```
+```
+GET /ecommerce/product/_search
+{
+  "query":{
+      "range":{
+          "quantity":{
+            "gte":1,
+            "lte":10
+          }
+      }
+  }
+}
+```
+## Compound Queries
+```
+GET /ecommerce/product/_search
+{
+    "query":{
+        "bool":{
+            "must":[
+                {"match":{"name":"pasta"}},
+                {"match":{"name":"spaghetti"}}
+            ]
+        }
+    }
+}
+```
+```
+GET /ecommerce/product/_search
+{
+    "query":{
+        "bool":{
+            "must":[
+                {"match":{"name":"pasta"}}
+            ],
+            "must_not":[
+                {"match":{"name":"spaghetti"}}
+            ]
+        }
+    }
+}
+```
+* with **should** the term **must** is not required but used for scoring. 
+```
+GET /ecommerce/product/_search
+{
+    "query":{
+        "bool":{
+            "must":[
+                {"match":{"name":"pasta"}}
+            ],
+            "should":[
+                {"match":{"name":"spaghetti"}}
+            ]
+        }
+    }
+}
+```
+
+## Indexing and Mapping Types
+* new index
+```
+PUT /myfoodblock/recepie/1
+{
+    "name":"Pasta Quattro Formaggi",
+    "description": "First you boil the pasta, then you add the cheese.",
+    "ingredientes":[
+        {
+            "name":"Pasta",
+            "amount":"500g"
+        },{
+            "name":"Fontina Cheese",
+            "amount":"100g"
+        },{
+            "name":"Parmesan Cheese",
+            "amount":"100g"
+        },{
+            "name":"Romano Cheeses",
+            "amount":"100g"
+        },{
+            "name":"Gorgonzola Cheese",
+            "amount":"100g"
+        }
+    ]
+}
+```
+
+
+
 
 # EXTRAS
 * [Readding](https://www.elastic.co/guide/en/kibana/current/connect-to-elasticsearch.html)
@@ -248,3 +401,4 @@ curl.exe is in the src folder of the downloaded / extracted curl folder.
 
 ## Annoucements
 [Types are being removed from Elasticsearch](https://www.udemy.com/elasticsearch-complete-guide/learn/v4/announcements?ids=882892)
+

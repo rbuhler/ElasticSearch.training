@@ -351,7 +351,7 @@ GET /ecommerce/product/_search
 ## Indexing and Mapping Types
 * new index
 ```
-PUT /myfoodblock/recepie/1
+PUT /myfoodblog/recipe/1
 {
     "name":"Pasta Quattro Formaggi",
     "description": "First you boil the pasta, then you add the cheese.",
@@ -375,8 +375,86 @@ PUT /myfoodblock/recepie/1
     ]
 }
 ```
+* list all indexes
+```
+GET /_cat/indices?v
+```
+* list documents of an index
+```
+GET /myfoodblog
+```
+* search across indexes
+```
+GET /ecommerce,myfoodblog/product/_search?q=pasta
+```
+* search across mapping types
+```
+GET /ecommerce,myfoodblog/product,recipe/_search?q=pasta&size=15
+```
+* %2B in url + sign is interpreted as space
+```
+GET /-*ecommerce,%2Bmyfoodblog/product,recipe/_search?q=pasta&size=15
+```
+[url encode](https://www.w3schools.com/tags/ref_urlencode.asp)
 
+* Search for all types
+```
+GET /ecommerce/_search?q=pasta
+``` 
 
+* Variations
+```
+GET /_all/product/_search?q=pasta
+    
+GET /_search?q=pasta
+```
+
+## FUZZY SEARCHES
+_Fuzziness is the number of characters necessary to change to match terms_
+
+###Levenshtein Distance 
+- [https://people.cs.pitt.edu](https://people.cs.pitt.edu/~kirk/cs1501/Pruhs/Spring2006/assignments/editdistance/Levenshtein%20Distance.htm)
+- [https://en.wikipedia.org](https://en.wikipedia.org/wiki/Levenshtein_distance)
+
+* Distance of 1
+```
+GET /ecommerce/_search?q=past~1
+```
+```
+GET /ecommerce/_search
+{
+    "query":{
+        "match":{
+            "name":{
+                "query":"past",
+                "fuzziness":1
+            }
+        }
+    }
+}
+
+```
+* Recommended in most cases:
+```
+GET /ecommerce/_search
+{
+    "query":{
+        "match":{
+            "name":{
+                "query":"past",
+                "fuzziness":"AUTO"
+            }
+        }
+    }
+}
+```
+
+* Proximity searches
+* ...
+```
+```
+
+_The max by Lucene is 2, due to performance concerns._
 
 
 # EXTRAS

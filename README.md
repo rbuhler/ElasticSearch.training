@@ -412,7 +412,7 @@ GET /_search?q=pasta
 ## FUZZY SEARCHES
 _Fuzziness is the number of characters necessary to change to match terms_
 
-###Levenshtein Distance 
+### Levenshtein Distance 
 - [https://people.cs.pitt.edu](https://people.cs.pitt.edu/~kirk/cs1501/Pruhs/Spring2006/assignments/editdistance/Levenshtein%20Distance.htm)
 - [https://en.wikipedia.org](https://en.wikipedia.org/wiki/Levenshtein_distance)
 

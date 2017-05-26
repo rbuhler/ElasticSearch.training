@@ -420,6 +420,9 @@ _Fuzziness is the number of characters necessary to change to match terms_
 ```
 GET /ecommerce/_search?q=past~1
 ```
+
+_The max by Lucene is 2, due to performance concerns._
+
 ```
 GET /ecommerce/_search
 {
@@ -449,13 +452,347 @@ GET /ecommerce/_search
 }
 ```
 
-* Proximity searches
-* ...
+## Proximity searches
+
+_Different orders of terms._
+
+* Two "editions" are allowed in the terms, this way they can be switched
 ```
+GET /ecommerce/product/_search?q=name:"pasta spaghetti"~2
+```
+* Here only one edit is allowed 
+```
+GET /ecommerce/product/_search?q=description:"spaghetti pasta"~1
+```
+* Equivalent 
+```
+GET /ecommerce/product/_search
+{
+    "query":{
+        "match_phrase":{
+            "name":{
+                "query": "pasta spaghetti",
+                "slop":2
+            }
+        }
+    }
+}
 ```
 
-_The max by Lucene is 2, due to performance concerns._
+## Boost Searches
 
+* Boost the term spaghetti (increase the importance)
+* Between 0 and 1 decrease the importance
+```
+GET /ecommerce/product/_search?q=name:pasta spaghetti^2.0
+```
+* Boosting a phrase (sentence)
+```
+GET /ecommerce/product/_search?q=name:"pasta spaghetti"^2.0
+```
+* 
+```
+GET /ecommerce/product/_search
+{
+    "query":{
+        "bool":{
+            "must":[
+                {"match":{"name":"pasta"}}
+            ],
+            "should":[
+                {
+                    "match":{
+                        "name":{
+                            "query":"spaghetti",
+                            "boost": 2.0
+                        }
+                    }
+                },{
+                    "match":{
+                        "name":{
+                            "query":"noodle",
+                            "boost": 1.5
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}
+```
+## Filtering Result
+
+* 2 query contexts
+  * query context
+    * queries in query context affects the relevance of query documents
+  * filter context
+    * queries in query context do not affect the relevance
+
+```
+GET /ecommerce/product/_search
+{
+    "query":{
+        "bool":{
+            "must":[
+                {
+                    "match":{
+                        "name":"pasta"
+                    }
+                }
+            ],
+            "filter":[
+                {
+                    "range":{
+                        "quantity":{
+                            "gte":10,
+                            "lte":15
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}
+```
+## Change the size of result set
+
+* Query string search
+```
+GET /ecommerce/product/_search?q=name:pasta&size=2
+```
+* Equivalente query (DSL)
+```
+GET /ecommerce/product/_search
+{
+    "query":{
+        "match":{
+            "name":"pasta"
+        }
+    },
+    "size":2
+}
+```
+
+## Pagination
+
+* Starting from 0 (zeero)
+```
+GET /ecommerce/product/_search?q=name:pasta&size=5
+```
+```
+GET /ecommerce/product/_search?q=name:pasta&size=5&from=5
+```
+
+```
+GET /ecommerce/product/_search
+{
+    "query":{
+        "match":{
+            "name":"pasta"
+        }
+    },
+    "size":5,
+    "from":5
+}
+```
+
+## Sorting Results
+```
+GET /ecommerce/product/_search
+{
+    "query":{
+        "match":{
+            "name":"pasta"
+        }
+    },
+    "sort":[
+        {
+            "quantity": {
+                "order": "desc"
+            }
+        }
+    ]
+}
+```
+
+## Agregations
+* Grouping and extracting statistics
+
+* Types
+  * Metrics
+    * Values
+  * Bucket
+    * 
+  * Pipeline
+    * Experimental
+    
+### Single Value Aggregation
+* Sum
+```
+GET /ecommerce/product/_search
+{
+     "query":{
+         "match_all":{}
+     },
+     "size":0,
+     "aggs":{
+         "quantity_sum":{
+             "sum":{
+                 "field":"quantity"
+             }
+         }
+     }
+}
+```
+```
+GET /ecommerce/product/_search
+ {
+    "query":{
+        "match":{
+          "name":{
+            "query":"pasta"
+          }
+        }
+    },
+    "size":0,
+    "aggs":{
+        "quantity_sum":{
+            "sum":{
+                "field":"quantity"
+            }
+        }
+    }
+ }
+```
+* Average
+```
+GET /ecommerce/product/_search
+ {
+    "query":{
+        "match":{
+          "name":{
+            "query":"pasta"
+          }
+        }
+    },
+    "size":0,
+    "aggs":{
+        "avg_qty":{
+            "avg":{
+                "field":"quantity"
+            }
+        }
+    }
+ }
+```
+
+* Min and Max
+```
+GET /ecommerce/product/_search
+ {
+    "query":{
+        "match":{
+          "name":{
+            "query":"pasta"
+          }
+        }
+    },
+    "size":0,
+    "aggs":{
+        "min_qty":{
+            "min":{
+                "field":"quantity"
+            }
+        }
+    }
+ }
+```
+### Multiple Value Aggregation
+* Metric Aggregations - Stats
+```
+GET /ecommerce/product/_search
+ {
+    "query":{
+        "match":{
+          "name":{
+            "query":"pasta"
+          }
+        }
+    },
+    "size":0,
+    "aggs":{
+        "qty_stats":{
+            "stats":{
+                "field":"quantity"
+            }
+        }
+    }
+ }
+```
+
+## Bucket Aggregations
+
+```
+GET /ecommerce/product/_search
+ {
+    "query":{
+        "match_all":{ }
+        }
+    },
+    "size":0,
+    "aggs":{
+        "qty_ranges":{
+            "range":{
+                "field":"quantity",
+                "ranges":[
+                    {
+                        "from":1, 
+                        "to":50
+                    },
+                    {
+                       "from":50, 
+                       "to":100
+                    }
+                ]
+            }
+        }
+    }
+ }
+```
+* Mixing Aggregations
+```
+GET /ecommerce/product/_search
+ {
+    "query":{
+        "match_all":{ }
+    },
+    "size":0,
+    "aggs":{
+        "qty_ranges":{
+            "range":{
+                "field":"quantity",
+                "ranges":[
+                    {
+                        "from":1, 
+                        "to":50
+                    },
+                    {
+                       "from":50, 
+                       "to":100
+                    }
+                ]
+            },
+            "aggs":{
+                "qwuantity_stats":{
+                    "stats":{
+                        "field":"quantity"
+                    }
+                }
+            }
+        }
+    }
+ }
+```
 
 # EXTRAS
 * [Readding](https://www.elastic.co/guide/en/kibana/current/connect-to-elasticsearch.html)

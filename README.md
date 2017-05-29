@@ -794,6 +794,21 @@ GET /ecommerce/product/_search
  }
 ```
 
+# Application and Libraries
+
+[https://www.elastic.co/](https://www.elastic.co/)
+
+[Docs](https://www.elastic.co/guide/index.html)
+
+[Clients](https://www.elastic.co/guide/en/elasticsearch/client/index.html)
+
+# ElasticSearch and DJango
+
+* [How To Use Elasticsearch With Python and Django](https://qbox.io/blog/how-to-elasticsearch-python-django-part1)
+* **GIT**[HonzaKral/es-django-example](https://github.com/HonzaKral/es-django-example)
+* [ElasticSearch with Django the easy way](https://medium.freecodecamp.com/elasticsearch-with-django-the-easy-way-909375bc16cb)
+
+
 # EXTRAS
 * [Readding](https://www.elastic.co/guide/en/kibana/current/connect-to-elasticsearch.html)
 * [CURL download](https://curl.haxx.se/)

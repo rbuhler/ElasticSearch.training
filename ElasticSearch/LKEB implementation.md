@@ -18,6 +18,19 @@ LKEB
 Change config file
 * **logstash.yml**
   * config.reload.automatic: true
+* [How to Configure the TCP Logstash input](http://blog.eagerelk.com/how-to-configure-the-tcp-logstash-input/)
+* SOAPUi :
+
+`http://www.thomas-bayer.com/axis2/services/BLZService?wsdl`
+```
+    <soap:Body>
+        <blz:getBank>
+            <blz:blz>39060180</blz:blz>
+        </blz:getBank>
+    </soap:Body>
+```
+
+
 
 ### DOC
 * [Stashing Your First Event](https://www.elastic.co/guide/en/logstash/current/first-event.html)
